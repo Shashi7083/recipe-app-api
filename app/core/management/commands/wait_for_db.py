@@ -6,7 +6,6 @@ from psycopg2 import OperationalError as Psycopg2OpError
 import time
 
 from django.db.utils import OperationalError
-from django.test import SimpleTestCase
 
 
 class Command(BaseCommand):
