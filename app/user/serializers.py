@@ -21,6 +21,26 @@ class UserSerializer(serializers.ModelSerializer):
             """Create and return a user with encrypted password."""
             return get_user_model().objects.create_user(**validated_data)
 
+    def update(self, instance, validated_data):
+         """Update and return user."""
+         password = validated_data.pop('password', None)
+         user = super().update(instance, validated_data)
+
+         if password:
+              user.set_password(password)
+              user.save()
+
+         return user
+
+    def validate(self, attrs):
+         """Validate request for not contain email for update."""
+         if self.instance:
+              if 'email' in attrs and attrs['email'] != self.instance.email:
+                   raise serializers.ValidationError(
+                {'email': _('You cannot change your email address.')}
+            )
+         return attrs
+
 
 class AuthTokenSerializer(serializers.Serializer):
      """Serializer for user auth token"""
