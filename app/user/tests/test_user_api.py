@@ -29,16 +29,16 @@ class PublicUserApiTest(TestCase):
     def test_create_user_success(self):
         """Test creating user is successful."""
         payload = {
-            'email':'test@example.com',
-            'password':'testpass123',
+            'email': 'test@example.com',
+            'password': 'testpass123',
             'name': 'Test Name',
         }
-        res = self.client.post(CREATE_USER_URL,payload)
+        res = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         user = get_user_model().objects.get(email=payload['email'])
         self.assertTrue(user.check_password(payload['password']))
-        self.assertNotIn('password',res.data)
+        self.assertNotIn('password', res.data)
 
     def test_user_with_email_exists_error(self):
         """Test error returned if user with email exist."""
@@ -71,8 +71,8 @@ class PublicUserApiTest(TestCase):
     def test_create_token_for_user(self):
         """Generate token for valid credentials"""
         user_details = {
-            'name' : 'Test Name',
-            'email' : 'test@example.com',
+            'name': 'Test Name',
+            'email': 'test@example.com',
             'password': 'testpass123'
         }
         create_user(**user_details)
@@ -91,10 +91,10 @@ class PublicUserApiTest(TestCase):
         """Test token for bad credentials"""
         create_user(email='test@example.com', password='testpass123')
 
-        payload={'email': 'test@example.com', 'password':'testpass'}
+        payload = {'email': 'test@example.com', 'password': 'testpass'}
         res = self.client.post(TOKEN_URL, payload)
 
-        self.assertNotIn('token',res.data)
+        self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_token_blank_password(self):
@@ -105,7 +105,7 @@ class PublicUserApiTest(TestCase):
         }
         res = self.client.post(TOKEN_URL, payload)
 
-        self.assertNotIn('token',res.data)
+        self.assertNotIn('token', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve_user_unauthorized(self):
@@ -133,7 +133,7 @@ class PrivateUserApiTests(TestCase):
         res = self.client.get(ME_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data,{
+        self.assertEqual(res.data, {
             'name': self.user.name,
             'email': self.user.email,
         })
@@ -166,7 +166,10 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('email', res.data)
-        self.assertEqual(res.data['email'][0], 'You cannot change your email address.')
+        self.assertEqual(
+            res.data['email'][0],
+            'You cannot change your email address.'
+        )
         self.user.refresh_from_db()
         self.assertNotEqual(self.user.email, new_email)
         self.assertEqual(self.user.email, old_email)
